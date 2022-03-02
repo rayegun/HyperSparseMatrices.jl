@@ -31,4 +31,8 @@ const HyperSparseCSR{Tv, Ti} = HyperSparseMatrix{RowMajor(), Tv, Ti}
 Base.size(A::HyperSparseCSC) = (A.vlen, A.vdim)
 Base.size(A::HyperSparseCSR) = (A.vdim, A.vlen)
 
+#TODO:
+# indexing
+# printing (braille?)
+# implement a good subset of the AbstractArray and AbstractSparseMatrix interface.
 end
