@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = HypersparseMatrices
+CurrentModule = HyperSparseMatrices
 ```
 
-# HypersparseMatrices
+# HyperSparseMatrices
 
-Documentation for [HypersparseMatrices](https://github.com/Wimmerer/HypersparseMatrices.jl).
+Documentation for [HyperSparseMatrices](https://github.com/Wimmerer/HyperSparseMatrices.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [HypersparseMatrices]
+Modules = [HyperSparseMatrices]
 ```

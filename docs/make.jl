@@ -1,16 +1,16 @@
-using HypersparseMatrices
+using HyperSparseMatrices
 using Documenter
 
-DocMeta.setdocmeta!(HypersparseMatrices, :DocTestSetup, :(using HypersparseMatrices); recursive=true)
+DocMeta.setdocmeta!(HyperSparseMatrices, :DocTestSetup, :(using HyperSparseMatrices); recursive=true)
 
 makedocs(;
-    modules=[HypersparseMatrices],
+    modules=[HyperSparseMatrices],
     authors="Wimmerer <kimmerer@mit.edu> and contributors",
-    repo="https://github.com/Wimmerer/HypersparseMatrices.jl/blob/{commit}{path}#{line}",
-    sitename="HypersparseMatrices.jl",
+    repo="https://github.com/Wimmerer/HyperSparseMatrices.jl/blob/{commit}{path}#{line}",
+    sitename="HyperSparseMatrices.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://Wimmerer.github.io/HypersparseMatrices.jl",
+        canonical="https://Wimmerer.github.io/HyperSparseMatrices.jl",
         assets=String[],
     ),
     pages=[
@@ -19,6 +19,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/Wimmerer/HypersparseMatrices.jl",
+    repo="github.com/Wimmerer/HyperSparseMatrices.jl",
     devbranch="main",
 )

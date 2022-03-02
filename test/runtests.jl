@@ -1,6 +1,6 @@
-using HypersparseMatrices
+using HyperSparseMatrices
 using Test
 
-@testset "HypersparseMatrices.jl" begin
+@testset "HyperSparseMatrices.jl" begin
     # Write your tests here.
 end
