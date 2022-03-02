@@ -25,6 +25,8 @@ struct HyperSparseMatrix{O, Tv, Ti<:Integer} <: AbstractSparseMatrix{Tv, Ti}
     v::Vector{Tv} # the coefficients of stored indices in the matrix
 end
 
+storageorder(::HyperSparseMatrix{O}) where {O} = O
+
 const HyperSparseCSC{Tv, Ti} = HyperSparseMatrix{ColMajor(), Tv, Ti}
 const HyperSparseCSR{Tv, Ti} = HyperSparseMatrix{RowMajor(), Tv, Ti}
 
