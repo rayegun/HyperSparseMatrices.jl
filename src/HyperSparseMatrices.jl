@@ -6,9 +6,11 @@ export HyperSparseMatrix, HyperSparseCSC, HyperSparseCSR
 abstract type StorageOrder end
 struct ColMajor <: StorageOrder end #colexicographic ordering
 struct RowMajor <: StorageOrder end #lexicographic ordering
+struct UnknownOrder <: StorageOrder end #storage order can only be determined at runtime. Needs function barrier most likely
+struct Unordered <: StorageOrder end #Likely needs another trait for whether fast lookups are supported. 
+# If fast lookups are supported then we can iterate the other array and lookup in this one. 
 
-storageorder(::Array) = ColMajor()
-storageorder(A::AbstractArray) = storageorder(parent(A))
+storageorder(::AbstractArray) = ColMajor()
 
 
 
