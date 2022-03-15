@@ -1,13 +1,15 @@
 name = "HyperSparseMatrices"
 uuid = "c7efdb1c-7caa-4c7d-9b5e-9093f9323c7c"
 authors = ["Wimmerer <kimmerer@mit.edu> and contributors"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+StorageOrders = "e9177fbf-8fde-426c-9425-4eed0f22262a"
 
 [compat]
 julia = "1"
+StorageOrders = "0.2"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

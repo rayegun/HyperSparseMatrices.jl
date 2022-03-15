@@ -1,17 +1,7 @@
 module HyperSparseMatrices
 using SparseArrays
-
+using StorageOrders
 export HyperSparseMatrix, HyperSparseCSC, HyperSparseCSR
-# This shouldn't be here. It should be in (imo) ArrayInterface.jl or a future AbstractSparse.jl
-abstract type StorageOrder end
-struct ColMajor <: StorageOrder end #colexicographic ordering
-struct RowMajor <: StorageOrder end #lexicographic ordering
-struct UnknownOrder <: StorageOrder end #storage order can only be determined at runtime. Needs function barrier most likely
-struct Unordered <: StorageOrder end #Likely needs another trait for whether fast lookups are supported. 
-# If fast lookups are supported then we can iterate the other array and lookup in this one. 
-
-storageorder(::AbstractArray) = ColMajor()
-
 
 
 struct HyperSparseMatrix{O, Tv, Tf, Ti<:Integer} <: AbstractSparseMatrix{Tv, Ti}
@@ -31,10 +21,13 @@ struct HyperSparseMatrix{O, Tv, Tf, Ti<:Integer} <: AbstractSparseMatrix{Tv, Ti}
     fill::Tf # the fill value. A[i,j] == fill if (i,j) is compressed out.
 end
 
-storageorder(::HyperSparseMatrix{O}) where {O} = O
+StorageOrders.storageorder(::HyperSparseMatrix{O}) where {O} = O
 
 const HyperSparseCSC{Tv, Tf, Ti} = HyperSparseMatrix{ColMajor(), Tv, Tf, Ti}
 const HyperSparseCSR{Tv, Tf, Ti} = HyperSparseMatrix{RowMajor(), Tv, Tf, Ti}
+
+HyperSparseCSC(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = HyperSparseCSC{Tv, Tf, Ti}(vlen, dvim, p, h, idx, v, fill)
+HyperSparseCSR(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = HyperSparseCSR{Tv, Tf, Ti}(vlen, dvim, p, h, idx, v, fill)
 
 Base.size(A::HyperSparseCSC) = (A.vlen, A.vdim)
 Base.size(A::HyperSparseCSR) = (A.vdim, A.vlen)
