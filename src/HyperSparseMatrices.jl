@@ -26,8 +26,8 @@ StorageOrders.storageorder(::HyperSparseMatrix{O}) where {O} = O
 const HyperSparseCSC{Tv, Tf, Ti} = HyperSparseMatrix{ColMajor(), Tv, Tf, Ti}
 const HyperSparseCSR{Tv, Tf, Ti} = HyperSparseMatrix{RowMajor(), Tv, Tf, Ti}
 
-HyperSparseCSC(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = HyperSparseCSC{Tv, Tf, Ti}(vlen, dvim, p, h, idx, v, fill)
-HyperSparseCSR(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = HyperSparseCSR{Tv, Tf, Ti}(vlen, dvim, p, h, idx, v, fill)
+HyperSparseCSC(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = HyperSparseCSC{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
+HyperSparseCSR(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = HyperSparseCSR{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
 
 Base.size(A::HyperSparseCSC) = (A.vlen, A.vdim)
 Base.size(A::HyperSparseCSR) = (A.vdim, A.vlen)
