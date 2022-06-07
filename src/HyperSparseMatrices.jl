@@ -1,7 +1,7 @@
 module HyperSparseMatrices
 using SparseArrays
 using StorageOrders
-export HyperSparseMatrix, HyperSparseCSC, HyperSparseCSR
+export HyperSparseMatrix, DCSCMatrix, DCSRMatrix
 
 
 struct HyperSparseMatrix{O, Tv, Tf, Ti<:Integer} <: AbstractSparseMatrix{Tv, Ti}
@@ -23,20 +23,20 @@ end
 
 StorageOrders.storageorder(::HyperSparseMatrix{O}) where {O} = O
 
-const HyperSparseCSC{Tv, Tf, Ti} = HyperSparseMatrix{ColMajor(), Tv, Tf, Ti}
-const HyperSparseCSR{Tv, Tf, Ti} = HyperSparseMatrix{RowMajor(), Tv, Tf, Ti}
+const DCSCMatrix{Tv, Tf, Ti} = HyperSparseMatrix{ColMajor(), Tv, Tf, Ti}
+const DCSRMatrix{Tv, Tf, Ti} = HyperSparseMatrix{RowMajor(), Tv, Tf, Ti}
 
-HyperSparseCSC(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = HyperSparseCSC{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
-HyperSparseCSR(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = HyperSparseCSR{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
+DCSCMatrix(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = DCSCMatrix{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
+DCSRMatrix(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = DCSRMatrix{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
 
-Base.size(A::HyperSparseCSC) = (A.vlen, A.vdim)
-Base.size(A::HyperSparseCSR) = (A.vdim, A.vlen)
+Base.size(A::DCSCMatrix) = (A.vlen, A.vdim)
+Base.size(A::DCSRMatrix) = (A.vdim, A.vlen)
 
 SparseArrays.nnz(A::HyperSparseMatrix) = length(A.v)
 SparseArrays.nonzeros(A::HyperSparseMatrix) = A.v
 
-nvec(A::HyperSparseCSC) = size(A, 2)
-nvec(A::HyperSparseCSR) = size(A, 1)
+nvec(A::DCSCMatrix) = size(A, 2)
+nvec(A::DCSRMatrix) = size(A, 1)
 
 # indexing adapted from SS:GrB and SparseArrays:
 function Base.getindex(A::HyperSparseMatrix{O, Tv, Tf, Ti}, row::Integer, col::Integer) where {O, Tv, Tf, Ti}
