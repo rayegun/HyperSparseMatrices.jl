@@ -4,7 +4,7 @@ using StorageOrders
 export HyperSparseMatrix, DCSCMatrix, DCSRMatrix
 
 
-struct HyperSparseMatrix{O, Tv, Tf, Ti<:Integer} <: AbstractSparseMatrix{Tv, Ti}
+struct HyperSparseMatrix{O, Bi, Tv, Tf, Ti<:Integer} <: AbstractSparseMatrix{Tv, Ti}
     # Comments here reflect column major ordering. 
     # To understand as DCSR simply swap references to columns with rows and vice versa.
     vlen::Int # m in CSC, n in CSR. This is the length of the vectors. In DCSC this is thus the number of rows.
@@ -23,11 +23,14 @@ end
 
 StorageOrders.storageorder(::HyperSparseMatrix{O}) where {O} = O
 
-const DCSCMatrix{Tv, Tf, Ti} = HyperSparseMatrix{ColMajor(), Tv, Tf, Ti}
-const DCSRMatrix{Tv, Tf, Ti} = HyperSparseMatrix{RowMajor(), Tv, Tf, Ti}
+const DCSCMatrix{Bi, Tv, Tf, Ti} = HyperSparseMatrix{ColMajor(), Bi, Tv, Tf, Ti}
+const DCSRMatrix{Bi, Tv, Tf, Ti} = HyperSparseMatrix{RowMajor(), Bi, Tv, Tf, Ti}
 
-DCSCMatrix(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = DCSCMatrix{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
-DCSRMatrix(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = DCSRMatrix{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
+DCSCMatrix{Bi}(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = DCSCMatrix{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
+DCSRMatrix{Bi}(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = DCSRMatrix{Tv, Tf, Ti}(vlen, vdim, p, h, idx, v, fill)
+
+DCSCMatrix(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = DCSCMatrix{1}(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf}
+DCSRMatrix(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf} = DCSRMatrix{1}(vlen, vdim, p::Ti, h::Ti, idx::Ti, v::Tv, fill::Tf) where {Ti, Tv, Tf}
 
 Base.size(A::DCSCMatrix) = (A.vlen, A.vdim)
 Base.size(A::DCSRMatrix) = (A.vdim, A.vlen)
@@ -38,8 +41,12 @@ SparseArrays.nonzeros(A::HyperSparseMatrix) = A.v
 nvec(A::DCSCMatrix) = size(A, 2)
 nvec(A::DCSRMatrix) = size(A, 1)
 
+# Bi setup taken from SparseMatrixCSR.jl
+getoffset(S::HyperSparseMatrix{O, Bi}) where {O, Bi} = getoffset(Bi)
+@inline getoffset(Bi::Integer) = 1-Bi
+
 # indexing adapted from SS:GrB and SparseArrays:
-function Base.getindex(A::HyperSparseMatrix{O, Tv, Tf, Ti}, row::Integer, col::Integer) where {O, Tv, Tf, Ti}
+function Base.getindex(A::HyperSparseMatrix{O, Bi, Tv, Tf, Ti}, row::Integer, col::Integer) where {O, Bi, Tv, Tf, Ti}
     # A HyperSparseMatrix stores sparse vectors.
     # Since we support both ColMajor and RowMajor i and j don't mean what they usually do.
     # Instead j refers to the vector
@@ -53,26 +60,31 @@ function Base.getindex(A::HyperSparseMatrix{O, Tv, Tf, Ti}, row::Integer, col::I
     end
     @boundscheck checkbounds(A, row, col) # the overloaded size should take care of doing this correctly.
     nnz(A) == o && return A.fill # no values, return fill.
-
+    o = getoffset(A)
     # A.h contains a list of vectors that were not compressed out.
     # We determine the idx in A.h of j (or the next greater idx if j ∉ A.h)
-    idx = searchsortedfirst(A.h, j, 1, nvec(A), Forward) 
+    io = i1 - o
+    jo = j1 - o
+    idx = searchsortedfirst(A.h, jo, 1, nvec(A), Forward) 
 
     # if this is true then we have a vector, and this just becomes the same as indexing in SparseMatrixCSC
     # If we don't, we just return the fill value.
-    j == A.h[idx] || return A.fill 
+    j == A.h[idx+o] || return A.fill 
 
     # this is all adapted directly from sparsematrix.jl ∈ SparseArrays.jl
-    r1 = A.p[idx]
-    r2 = A.p[idx + 1] - 1
+    r1 = A.p[idx] + o
+    r2 = A.p[idx + 1] - Bi
     (r1 > r2) && return A.fill
-    r1 = searchsortedfirst(A.idx, i, r1, r2, Forward)
-    return ((r1 > r2) || (A.idx[r1] != i)) ? A.fill : A.v[r1]
+    r1 = searchsortedfirst(A.idx, io, r1, r2, Forward)
+    return ((r1 > r2) || (A.idx[r1] != io)) ? A.fill : A.v[r1]
 end
 
 
 
 #TODO:
+# COO => hypersparse
+# hypersparse => COO
+# tests
 # indexing
 # printing (braille?)
 # implement a good subset of the AbstractArray and AbstractSparseMatrix interface.
